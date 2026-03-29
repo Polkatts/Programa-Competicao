@@ -8,13 +8,13 @@ from tkinter import filedialog
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-# Nome do arquivo de configuração
 CONFIG_FILE = "config.json"
 
 class OrganizadorHandler(FileSystemEventHandler):
     def __init__(self, destinos, log_func):
         self.destinos = destinos
         self.log_func = log_func
+      
 
     def on_modified(self, event):
         pasta_origem = event.src_path if os.path.isdir(event.src_path) else os.path.dirname(event.src_path)
@@ -67,7 +67,7 @@ class App(ctk.CTk):
 
     def setup_ui(self):
         self.grid_columnconfigure(1, weight=1)
-        self.label_titulo = ctk.CTkLabel(self, text="Gerenciador de Arquivos", font=("Arial", 20, "bold"))
+        self.label_titulo = ctk.CTkLabel(self, text="Gerenciador de Arquivos", font=("Roboto", 20, "bold"))
         self.label_titulo.grid(row=0, column=0, columnspan=2, pady=20)
 
         # Labels para mostrar os caminhos atuais
@@ -87,18 +87,19 @@ class App(ctk.CTk):
             
             # Label que mostra o caminho salvo
             caminho_exibido = self.caminhos[chave] if self.caminhos[chave] else "Não selecionado"
-            lbl_status = ctk.CTkLabel(self, text=caminho_exibido, text_color="gray", font=("Arial", 10))
+            lbl_status = ctk.CTkLabel(self, text=caminho_exibido, text_color="gray", font=("Arial", 10,))
             lbl_status.grid(row=i*2+1, column=0, padx=25, sticky="w")
             self.labels_caminhos[chave] = lbl_status
 
             btn = ctk.CTkButton(self, text="Selecionar", width=100, command=lambda c=chave: self.escolher_pasta(c))
             btn.grid(row=i*2, column=1, rowspan=2, padx=20, sticky="e")
 
-        self.btn_control = ctk.CTkButton(self, text="INICIAR MONITORAMENTO", fg_color="green", command=self.toggle_monitor)
+        self.btn_control = ctk.CTkButton(self, text="INICIAR MONITORAMENTO", fg_color="#2DAE60", command=self.toggle_monitor)
         self.btn_control.grid(row=15, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
 
         self.log_box = ctk.CTkTextbox(self, height=120)
         self.log_box.grid(row=16, column=0, columnspan=2, padx=20, pady=10, sticky="nsew")
+
 
     def escolher_pasta(self, chave):
         caminho = filedialog.askdirectory()
@@ -120,9 +121,21 @@ class App(ctk.CTk):
             except:
                 pass
 
-    def adicionar_log(self, mensagem):
-        self.log_box.insert("end", f"[{time.strftime('%H:%M')}] {mensagem}\n")
+    def adicionar_log(self, mensagem, tipo="info"):
+    # Habilita a edição temporariamente se você deixou como state="disabled"
+        self.log_box.configure(state="normal")
+        
+        timestamp = f"[{time.strftime('%H:%M:%S')}] "
+        
+        # 1. Insere o timestamp com a cor cinza
+        self.log_box.insert("end", timestamp, "timestamp")
+        
+        # 2. Insere a mensagem com a cor baseada no tipo (sucesso, erro, etc)
+        self.log_box.insert("end", f"{mensagem}\n", tipo)
+        
+        # Auto-scroll e desativa a edição para o usuário não digitar dentro
         self.log_box.see("end")
+        self.log_box.configure(state="disabled")
 
     def toggle_monitor(self):
         if not self.observer:
@@ -131,8 +144,9 @@ class App(ctk.CTk):
                 return
             
             mapeamento = {
-                ".jpg": self.caminhos["imagens"], ".png": self.caminhos["imagens"],
-                ".mp4": self.caminhos["videos"], ".pdf": self.caminhos["docs"],
+                ".jpg": self.caminhos["imagens"], ".png": self.caminhos["imagens"], ".jpeg": self.caminhos["imagens"],
+                ".gif": self.caminhos["imagens"], ".webp": self.caminhos["imagens"],
+                ".mov": self.caminhos["videos"],".mp4": self.caminhos["videos"], ".pdf": self.caminhos["docs"],
                 ".xlsx": self.caminhos["excel"], ".csv": self.caminhos["excel"]
             }
 
@@ -150,6 +164,7 @@ class App(ctk.CTk):
             self.observer = None
             self.btn_control.configure(text="INICIAR MONITORAMENTO", fg_color="green")
             self.adicionar_log("Serviço parado.")
+
 
 if __name__ == "__main__":
     app = App()
