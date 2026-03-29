@@ -52,7 +52,6 @@ class App(ctk.CTk):
         self.title("Organizador Corporativo")
         self.geometry("700x600")
         
-        # Estrutura de dados inicial
         self.caminhos = {
             "origem": "",
             "imagens": "",
@@ -62,7 +61,7 @@ class App(ctk.CTk):
         }
         
         self.observer = None
-        self.carregar_configuracoes() # Tenta carregar ao iniciar
+        self.carregar_configuracoes() 
         self.setup_ui()
 
     def setup_ui(self):
@@ -70,7 +69,6 @@ class App(ctk.CTk):
         self.label_titulo = ctk.CTkLabel(self, text="Gerenciador de Arquivos", font=("Roboto", 20, "bold"))
         self.label_titulo.grid(row=0, column=0, columnspan=2, pady=20)
 
-        # Labels para mostrar os caminhos atuais
         self.labels_caminhos = {}
         
         linhas = [
@@ -85,7 +83,6 @@ class App(ctk.CTk):
             lbl_nome = ctk.CTkLabel(self, text=texto)
             lbl_nome.grid(row=i*2, column=0, padx=20, pady=(10, 0), sticky="w")
             
-            # Label que mostra o caminho salvo
             caminho_exibido = self.caminhos[chave] if self.caminhos[chave] else "Não selecionado"
             lbl_status = ctk.CTkLabel(self, text=caminho_exibido, text_color="gray", font=("Arial", 10,))
             lbl_status.grid(row=i*2+1, column=0, padx=25, sticky="w")
@@ -122,18 +119,15 @@ class App(ctk.CTk):
                 pass
 
     def adicionar_log(self, mensagem, tipo="info"):
-    # Habilita a edição temporariamente se você deixou como state="disabled"
+    
         self.log_box.configure(state="normal")
         
         timestamp = f"[{time.strftime('%H:%M:%S')}] "
         
-        # 1. Insere o timestamp com a cor cinza
         self.log_box.insert("end", timestamp, "timestamp")
         
-        # 2. Insere a mensagem com a cor baseada no tipo (sucesso, erro, etc)
         self.log_box.insert("end", f"{mensagem}\n", tipo)
-        
-        # Auto-scroll e desativa a edição para o usuário não digitar dentro
+
         self.log_box.see("end")
         self.log_box.configure(state="disabled")
 
